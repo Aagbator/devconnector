@@ -7,8 +7,11 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const keys = require('../../config/keys');
 const passport = require('passport');
-
 const router = express.Router();
+
+// Load Input Validation
+const validateRegisterInput = require('../../validation/register');
+const validateLoginInput = require('../../validation/login');
 
 // Load User model
 const User = require('../../models/User');
@@ -19,10 +22,19 @@ router.get('/', (req, res) => res.json({ msg: "Users works", title: 'hello'}));
 // @desc Register user
 //access public
 router.post('/register', (req, res) => {
+
+    const {errors, isValid} = validateRegisterInput(req.body);
+
+    // check validation
+    if(!isValid){
+        return res.status(400).json(errors);
+    }
+
     User.findOne({ email: req.body.email })
         .then(user => {
             if(user){
-                return res.status(400).json({email: 'Email already exists'})
+                errors.email = 'Email already exists';
+                return res.status(400).json({errors});
             }else{
 
                 const avatar = gravatar.url(req.body.email, {
@@ -60,6 +72,16 @@ router.post('/register', (req, res) => {
 //access public
 
 router.post('/login', (req, res) => {
+
+
+    const {errors, isValid} = validateLoginInput(req.body);
+
+    // check validation
+    if(!isValid){
+        return res.status(400).json(errors);
+    }
+
+
     const email = req.body.email;
     const password = req.body.password;
 

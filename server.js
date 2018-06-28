@@ -21,7 +21,7 @@ const db = require('./config/keys').mongoURI;
 mongoose
     .connect(db)
     .then(() => console.log('mongoDB connected'))
-    .catch(err => console.log('error'));
+    .catch(err => console.log('error in connection', err));
 
 
 app.use(express.json());
